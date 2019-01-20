@@ -18,13 +18,17 @@ public class RetrieverApplication {
 	public static LinkedHashMap<String, LinkedHashMap<String, String>> schedule;
 	public static void main(String[] args) {
 		try(Scanner scanner = new Scanner(System.in)){
-			schedule = SplitSchedulePage();
+			schedule = SplitSchedulePage();			
+			
+			//Asks the user for a few letters of the destination they want
 			ArrayList<String> cities = new ArrayList<String>();
 			String userInput;
 			do {
 				System.out.print("Please enter the first few letters that your destination start with: ");
 				userInput = scanner.nextLine();
 			} while((cities = getValidDestinations(userInput)).size() == 0);
+			
+			//Asks user for the bus they want
 			String busLink;
 			do {
 				System.out.print("Please enter a route ID: ");
@@ -35,6 +39,7 @@ public class RetrieverApplication {
 			System.out.printf("The link for your route is: https://www.communitytransit.org/busservice%s\n", busLink);
 			System.out.println();
 			
+			//Gets and parses the bus route
 			String pageText = getPageText("https://www.communitytransit.org/busservice" + busLink);
 			Pattern busRoute = Pattern.compile("(?s)(?<=<h2>Weekday<small>)(.*?)</small>.*?(?=</thead>)");
 			Matcher busRouteMatcher = busRoute.matcher(pageText);
@@ -57,6 +62,7 @@ public class RetrieverApplication {
 		}
 	}
 	
+	//Gets the link extension for the requested bus
 	public static String getBusLink(String busNumber, ArrayList<String> cities) {
 		for(String city : cities){
 			if(schedule.get(city).get(busNumber) != null) {
@@ -66,6 +72,7 @@ public class RetrieverApplication {
 		return null;
 	}
 	
+	//Gets and parses the main schedules' webpage
 	public static LinkedHashMap<String, LinkedHashMap<String, String>> SplitSchedulePage() throws MalformedURLException, IOException{
 		String schedulerURLString = "https://www.communitytransit.org/busservice/schedules/";
 		String pageText = getPageText(schedulerURLString);
@@ -89,6 +96,7 @@ public class RetrieverApplication {
 		return schedule;
 	}
 	
+	//returns the destinations that start with some string
 	public static ArrayList<String> getValidDestinations(String startsWith) {
 		ArrayList<String> cities = new ArrayList<String>();
 		for(String city : schedule.keySet()) {
@@ -104,6 +112,7 @@ public class RetrieverApplication {
 		return cities;
 	}
 	
+	//Gets the text from a website
 	public static String getPageText(String URLString) throws MalformedURLException, IOException {
 		URLConnection URL = new URL(URLString).openConnection();
 		//URL.setRequestProperty("user-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.95 Safari/537.11");
@@ -117,6 +126,7 @@ public class RetrieverApplication {
 		}
 	}
 	
+	//prints the schedule out
 	public static void printBusSchedule() {
 		for(Map.Entry<String, LinkedHashMap<String, String>> citySchedule : schedule.entrySet()) {
 			System.out.println(citySchedule.getKey());
